@@ -1,4 +1,4 @@
-Steps for reproducing the `HPCE-2014-GPU-Image` AMI.
+Steps for reproducing the `HPCE-2015-GPU-Image` AMI.
 
 Start with the image `debian-jessie-amd64-hvm-2014-12-25-13-19-ebs (ami-aae18fc2)`
 on a GPU instance.

@@ -16,7 +16,7 @@ Building the Project
 7. Click Configure and then Generate
 8. If all correct, there should be no red.
 
-Inside the `bin` folder there will now be a Xcode Project file `HPCE-2014-CW4.xcodeproj` (if on mac) or a Visual Studio Solution `HPCE-2014-CW4.sln` (if on Windows). Double click this to launch the IDE. 
+Inside the `bin` folder there will now be a Xcode Project file `HPCE-2015-CW4.xcodeproj` (if on mac) or a Visual Studio Solution `HPCE-2015-CW4.sln` (if on Windows). Double click this to launch the IDE. 
 
 The IDE will have all the executibles/binaries listed as independent projects.
 If `ALL_BUILD` is selected, pressing build on the IDE will build all executibles/binaries.
@@ -27,7 +27,7 @@ The built executables/binaries should be in `bin/Debug`.
 `cmake` is required via the command line, linux users can `sudo apt-get install cmake`. 
 Not 100% sure if already available on MinGW and Cygwin. Mac users can install cmake into the command line through the CMake app. 
 
-First, `cd` into the `hpce-2014-cw4` folder, then run:
+First, `cd` into the `hpce-2015-cw4` folder, then run:
 
 1. `mkdir bin`
 2. `cd bin`

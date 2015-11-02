@@ -36,7 +36,7 @@ Compile the program, and make sure you can both build
 and execute it. You may need to fiddle with your
 include and link directories to make it build, and
 find/download an SDK. While an OpenCL run-time is
-installed in most systems, there is not often no SDK
+installed in most systems, there is often no SDK
 installed.
 
 SDKs and Run-times
@@ -49,8 +49,8 @@ underlying compute resource.
 
 ### Cross-platform
 
-@farrell236 was nice enough to contribute the [CMakeLists.txt](CMakeLists.txt),
-which is a way of getting [cross-platform builds with CMake](https://github.com/HPCE/hpce-2014-cw4/issues/5).
+In 2014 @farrell236 was nice enough to contribute the [CMakeLists.txt](CMakeLists.txt),
+which is a way of getting cross-platform builds with CMake.
 
 ### Windows
 
@@ -65,10 +65,6 @@ the SDK is not.
 A subset of lab machines on level 5 have OpenCL capable
 GPUs, plus the drivers installed. However, they do not
 have any SDKs.
-
-_Note: some [problems compiling for windows](https://github.com/HPCE/hpce-2014-cw4/issues/2). If
-you're seeing something similar, it would be useful to know what the
-common causes or problems are._
 
 ### Linux
 
@@ -97,24 +93,38 @@ Apparently, adding the option:
 to your compilation may help when trying to sort out header
 and linker directories.
 
-_Note: Various contributors have suggestions for getting
-[compilation working](https://github.com/HPCE/hpce-2014-cw4/issues/4)
-under OSX._
 
 ### AWS
 
 I've created an image for AWS which has OpenCL set up,
 both for software and the GPU. The title of the image
-is `HPCE-2014-GPU-Image`, which can be selected when
+is `HPCE-2015-GPU-Image`, which can be selected when
 you launch an AWS instance. The steps for reproducing
 are [available](aws_setup.md), but it isn't much fun
-recreating it. @schmethan suggests also installing
-`eog` and `libcanberra-gtk3-module` for viewing images.
+recreating it.
 
 ### Debugging
 
-@kronocharia has [some suggestions](https://github.com/HPCE/hpce-2014-cw4/issues/6) on how
-to debug programs which are part of a pipeline.
+Because the program you're writing works as part of a pipeline,
+you may find it difficult to launch in a debugger. You have a
+couple of options here:
+
+- If your pipeline is `./A | ./B | ./C` and you want to debug
+  program `B`, store the output of A into a file `./A > a.out`.
+  In the debugger you are using, specifying that stdin should
+  come from the file.
+  
+- Use the "deferred launch" feature available in some debuggers.
+  In this mode you tell the debugger what program you want to
+  debug, and it will wait till it sees that program start then
+  attach to it.
+  
+- Use the "attach to process" feature available in most debuggers.
+  Add something to interrupt execution at the start of main, for
+  example `raise(SIGSTOP)` (posix/Mac) or `DebugBreak()` (Windows),
+  then you can attach the debugger.
+  - http://blogs.msdn.com/b/calvin_hsia/archive/2006/08/25/724572.aspx
+  - https://developer.apple.com/library/mac/qa/qa1573/_index.html
 
 The Heat World code
 ===================
@@ -192,7 +202,7 @@ Now advance the world by a single time-step of length 0.1 seconds:
 
 	make_world 10 0.1 | step_world 0.1 1
 
-You'll see that the the cells next to the heat source row has
+You'll see that the the cells next to the heat source row have
 warmed up. The warming is not uniform, as at the far left and
 far right the cells are up against insulators, so according
 to the simple model using here, they end up slightly warmer.
@@ -204,7 +214,7 @@ You can now advance the world by a few seconds:
 You should see that some of the heat is making it's way
 around the right hand side, but it can't come through
 the insulator across the middle-left. Step forward
-by a 1000 seconds:
+by 1000 seconds:
 
 	make_world 10 0.1 | step_world 0.1 10000
 
@@ -327,7 +337,9 @@ a lambda, starting to isolate the core loops. Pull
 the body of the inner-most loop into a seperate
 lambda called `kernel_xy`, which should take an
 x and y parameter, but capture everything else by
-reference (i.e. use the `[&]` lambda form).
+reference (i.e. use the `[&]` lambda form) - this
+is an intermediate step, so we won't worry too much
+about shared dynamic state.
 
 The resulting code should look something like:
 
@@ -387,7 +399,7 @@ are programs like `diff` (posix) and `FC` (windows)
 which will tell you if two text files are
 different. In bash this is particularly easy to do,
 and it can be incorporated into your makefile if you
-wish.
+wish - `make test` is often a good target to have.
 
 ### Making the isolation clean
 
@@ -549,7 +561,9 @@ we even think about executing kernels, we need to:
 
 4. Create and build our kernels. It is common
    to load and build the GPU kernel code at run-time,
-   just before the kernel is first used.
+   just before the kernel is first used, though it is
+   also possible to pre-compile them, and pre-compilation is
+   required for FPGA-based OpenCL providers.
 
 These steps can often be simplified with library
 code, but here we'll rely on just the standard
@@ -644,7 +658,7 @@ we can enumerate:
 Depending on your system you may now see two devices. On my
 desktop, I get:
 
-	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2014/hpce/cw/CW4
+	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2015/hpce/cw/CW4
     $ bin/make_world.exe 64 | bin/step_world_v3_opencl > /dev/null
     Loaded world with w=64, h=64
     Stepping by dt=0.1 for n=1
@@ -682,7 +696,7 @@ option of changing that via an environment variable:
 So for example I can switch between device 0 and 1 without
 re-compiling:
 
-	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2014/hpce/cw/CW4
+	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2015/hpce/cw/CW4
 	$ bin/make_world.exe 64 | bin/step_world_v3_opencl > /dev/null
 	Loaded world with w=64, h=64
 	Stepping by dt=0.1 for n=1
@@ -694,7 +708,7 @@ re-compiling:
 	  Device 1 :         Intel(R) Core(TM) i7-2600 CPU @ 3.40GHz
 	Choosing device 0
 
-	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2014/hpce/cw/CW4
+	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2015/hpce/cw/CW4
 	$ export HPCE_SELECT_DEVICE=1
 
 	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2014/hpce/cw/CW4
@@ -767,7 +781,7 @@ read this, then integrate it into your file:
 	// To go in hpce::your_login, just above StepWorldV3OpenCL
 	std::string LoadSource(const char *fileName)
 	{
-		// Don't forget to change your_login here
+		// TODO : Don't forget to change your_login here
 		std::string baseDir="src/your_login";
 		if(getenv("HPCE_CL_SRC_DIR")){
 			baseDir=getenv("HPCE_CL_SRC_DIR");
@@ -907,9 +921,9 @@ There are two types of builtin indices:
 	limited by hardware resources.
 
 - `size_t get_global_id(uint dimindx)` : This returns the position within
-	the entire work-group. Threads in different local work-groups
+	the entire global work-group. Threads in different local work-groups
 	cannot communicate via local memory, but can communicate via
-	(slower) global memory, and the size of the work-group is almost
+	(slower) global memory, and the size of the global work-group is almost
 	unlimited.
 
 The dimensionality of each id is determined by the dimension
@@ -989,7 +1003,7 @@ We have three arrays in use while stepping the world:
 - `properties` : A read-only array describing the static
 	structure of the world. This does not change across
 	all iterations within the world (i.e. for multiple
-	iterations of the outer t loop).
+	iterations of the outer `t` loop).
 
 - `state` : A read-only array containing the current state
 	of the world. However, this array does change between
@@ -1413,7 +1427,7 @@ write properties data to buffProperties
 
 write initial state to buffState
 
-for t = 0 .. n-1) begin
+for t = 0 .. n-1 begin
    Set state argument to buffState
    Set output argument to buffBuffer
    
@@ -1581,10 +1595,10 @@ In this context of this particular coursework, we won't go
 any further, but the next issue to tackle would be the
 small amount of work being done by each thread. At each
 co-ordinate there are only a handful of operations performed,
-so it would be good to batch up or agglomerate some
+so it would be good to agglomerate (batch up) some
 of those operations, to reduce scheduling overhead.
-This agglomeration could be temporal, but partially
-unrolling multiple iterations, or spatial, but grouping
+This agglomeration could be temporal, by partially
+unrolling multiple iterations, or spatial, by grouping
 together consecutive iterations into one larger iteration.
 
 We are also not using shared memory at all, which is wasting
@@ -1674,7 +1688,7 @@ Debugging tips
 ### Debug output
 
 In this particular exercise, you shouldn't encounter
-too many probles, but one useful feature of modern
+too many problems, but one useful feature of modern
 GPUs is that they allow debugging output, even from
 within kernels running in the GPU. In OpenCL 1.2 the
 printf support is enabled by default, but for other

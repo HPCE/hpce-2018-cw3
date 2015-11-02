@@ -1,3 +1,5 @@
+## This was contributed by https://github.com/farrell236 in 2014.
+
 ## ==============================================================================
 ##
 ##  CMake project settings
@@ -5,7 +7,7 @@
 ## ==============================================================================
 
 ## Name of the project handled by CMake
-project (HPCE-2014-CW4)
+project (HPCE-2015-CW4)
 
 ## Minimum required version of CMake to configure the project
 cmake_minimum_required (VERSION 2.8)
