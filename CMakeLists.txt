@@ -31,13 +31,17 @@ if(WIN32)
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(OPENCL_SDK_LIB      ${OPENCL_SDK_DIR}/lib/windows/x86_64/OpenCL.lib)
   endif()
-elseif(UNIX) 
+elseif(CYGWIN)
   set(OPENCL_SDK_LIB      ${OPENCL_SDK_DIR}/lib/cygwin/x86/libOpenCL.a)
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(OPENCL_SDK_LIB      ${OPENCL_SDK_DIR}/lib/cygwin/x86_64/libOpenCL.a)
   endif()
 else()
-  MESSAGE(FATAL_ERROR "ERROR: Unkown platform for OpenCL SDK")
+    # TODO : If it fails, you may need to add a new directory to the hint
+    #list for your system, or explicitly state where it is.
+    find_library(OPENCL_SDK_LIB NAMES OpenCL libOpenCL
+       HINTS /usr/lib/x86_64-linux-gnu /usr/local/lib /usr/lib/x86-linux-gnu
+    )
 endif()
 
 
@@ -59,19 +63,10 @@ add_executable(make_world    ${HEAT_HPP}  ${HEAT_CPP}  ${CMAKE_CURRENT_SOURCE_DI
 add_executable(render_world  ${HEAT_HPP}  ${HEAT_CPP}  ${CMAKE_CURRENT_SOURCE_DIR}/src/render_world.cpp)
 add_executable(step_world    ${HEAT_HPP}  ${HEAT_CPP}  ${CMAKE_CURRENT_SOURCE_DIR}/src/step_world.cpp)
 
-if(APPLE)
-  FIND_LIBRARY(OPENCL_LIBRARY OpenCL DOC "OpenCL lib for OSX")
-  target_link_libraries(test_opencl ${OPENCL_LIBRARY})
-  target_link_libraries(make_world ${OPENCL_LIBRARY})
-  target_link_libraries(render_world ${OPENCL_LIBRARY})
-  target_link_libraries(step_world ${OPENCL_LIBRARY})
-else()
-  target_link_libraries(test_opencl ${OPENCL_SDK_LIB})
-  target_link_libraries(make_world ${OPENCL_SDK_LIB})
-  target_link_libraries(render_world ${OPENCL_SDK_LIB})
-  target_link_libraries(step_world ${OPENCL_SDK_LIB})
-endif()
-
+target_link_libraries(test_opencl ${OPENCL_SDK_LIB})
+target_link_libraries(make_world ${OPENCL_SDK_LIB})
+target_link_libraries(render_world ${OPENCL_SDK_LIB})
+target_link_libraries(step_world ${OPENCL_SDK_LIB})
 
 ## ==============================================================================
 ##
@@ -80,7 +75,7 @@ endif()
 ## ==============================================================================
 
 ## TODO : Change this param to your IC username
-set(LOGIN_ID "<your_login>") 
+set(LOGIN_ID "<your_login>")
 
 set(USR_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/${LOGIN_ID})
 file(GLOB USR_SRC RELATIVE ${USR_SRC_DIR} ${USR_SRC_DIR}/*.cpp)
@@ -88,11 +83,7 @@ file(GLOB USR_SRC RELATIVE ${USR_SRC_DIR} ${USR_SRC_DIR}/*.cpp)
 foreach(SRC_FILE ${USR_SRC})
   string(REPLACE ".cpp" "" EXECUTABLE ${SRC_FILE})
   add_executable(${EXECUTABLE} ${HEAT_HPP} ${HEAT_CPP} ${USR_SRC_DIR}/${SRC_FILE})
-  if(APPLE)
-    target_link_libraries(${EXECUTABLE} ${OPENCL_LIBRARY})
-  else()
-    target_link_libraries(${EXECUTABLE} ${OPENCL_SDK_LIB})
-  endif()
+  target_link_libraries(${EXECUTABLE} ${OPENCL_SDK_LIB})
 endforeach(SRC_FILE ${USR_SRC})
 
 
@@ -131,3 +122,4 @@ IF(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src/${LOGIN_ID})
 endif()
 
 message (STATUS "------------------------------------------------------------"  )
+
