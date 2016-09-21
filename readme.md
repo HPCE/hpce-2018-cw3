@@ -5,7 +5,7 @@ The overall goals of this coursework are to:
 
 - Develop familiarity with building OpenCL programs
 
-- Follow a simple methodology for isolating the  parts of an existing
+- Follow a simple methodology for isolating the parts of an existing
 	program which can move to a kernel
 
 - Understand the OpenCL primitives needed to create and execute a kernel
@@ -22,6 +22,12 @@ expert. You should know how to create an OpenCL program
 from scratch by the end, but the performance you get
 may not be be as high as a TBB version.
 
+This builds on your existing knowledge of iteration spaces,
+and your experience with `tbb::parallel_for`. There are
+also links to the dependencies you've been seeing when
+implementing things using `tbb::task_group`, but now
+there is much less safety.
+
 Checking your OpenCL environment
 ================================
 
@@ -34,10 +40,9 @@ is enough to tell whether things are up and running.
 
 Compile the program, and make sure you can both build
 and execute it. You may need to fiddle with your
-include and link directories to make it build, and
-find/download an SDK. While an OpenCL run-time is
-installed in most systems, there is often no SDK
-installed.
+environment to make it build, and find/download an SDK.
+While an OpenCL run-time is installed in most systems,
+there is often no SDK installed.
 
 SDKs and Run-times
 ------------------
@@ -45,26 +50,15 @@ SDKs and Run-times
 As with TBB, you need two parts: the OpenCL SDK, which gives
 the headers and libraries you need to compile your programs;
 and the OpenCL run-time, which provides access to the
-underlying compute resource.
+underlying compute resource and does all the scheduling.
 
 ### Cross-platform
 
 In 2014 @farrell236 was nice enough to contribute the [CMakeLists.txt](CMakeLists.txt),
-which is a way of getting cross-platform builds with CMake.
-
-### Windows
-
-There are a number of SDKs available that can be downloaded,
-from AMD, Intel, NVidia, and so on. These SDKs can be
-pretty big, so you may want to use the extremely minimal
-version included in this distribution. This just contains
-the headers and libraries, and is appropriate for use in
-machines you don't control, where OpenCL is installed, but
-the SDK is not.
-
-A subset of lab machines on level 5 have OpenCL capable
-GPUs, plus the drivers installed. However, they do not
-have any SDKs.
+which is a way of getting cross-platform builds with CMake. I've
+kept it here, as exposure to CMake is a good thing (I've seen
+quite a few students (EIE2 2016) using [CLion](https://www.jetbrains.com/clion/),
+which is based on CMake).
 
 ### Linux
 
@@ -78,6 +72,16 @@ install it.
 
 Many DoC machines have NVidia cards, with the OpenCL
 drivers installed.
+
+I've included the [provisioning script](provision.sh) which I
+use for getting a basic [Debian Jessie](https://www.debian.org/releases/jessie/) install up and running
+with a software OpenCL provider. _I've also included a [vagrant](https://en.wikipedia.org/wiki/Vagrant_(software))
+script that will use the provision script - if you are
+feeling adventurous, then vagrant can become very
+useful, though it is on the slippery slope towards
+[docker](https://www.docker.com/what-docker). If you just want to make programs faster you
+can ignore all this._
+
 
 ### Mac users
 
@@ -133,8 +137,13 @@ To make this somewhat realistic, you are working with an
 existing proprietary application. This is a very simplified
 version of a research problem I once personally had to work
 with, where I was given a big lump of code and asked to
-make it go faster. The overall structure is a classic
-example of a finite-difference or stencil operation, where
+make it go faster. And amusingly now (2016) I am actively
+working on heat equations again for large-scale asynchronous systems.
+"plus ca change", _und so weiter_.
+
+The overall structure is a classic
+example of a [finite-difference](https://en.wikipedia.org/wiki/Finite_difference_method)
+or stencil operation, where
 you are applying some sort of local smoothing operation
 over huge numbers of time-steps. Such stencil calculations are
 very common, but different enough that one often can't use
@@ -170,14 +179,15 @@ to produce an executable. There are no other dependencies on external
 libraries.
 
 Use your chosen development environment to compile the three files,
-resulting in `make_world`, `step_world` and `render_world` (you
+resulting in `bin/make_world`, `bin/step_world` and `bin/render_world` (you
 can have them build in whatever directory you like). If you now
 do:
 	
-	make_world 10 0.1
+	bin/make_world 10 0.1
 
-You'll see it create a text description of a heat world. At the
-top is the header, describing the dimensions of the world, and
+You'll see it create a text description of a heat world (you
+may want to make your terminal larger, or look at it in a text
+file. At the top is the header, describing the dimensions of the world, and
 the propagation constant (0.1 in this case). The propagation
 constant measures how fast heat migrates between conductive
 cells in this world, so a constant of 0.01 would result in slower
@@ -200,7 +210,7 @@ the cells around them.
 
 Now advance the world by a single time-step of length 0.1 seconds:
 
-	make_world 10 0.1 | step_world 0.1 1
+	bin/make_world 10 0.1 | bin/step_world 0.1 1
 
 You'll see that the the cells next to the heat source row have
 warmed up. The warming is not uniform, as at the far left and
@@ -209,14 +219,14 @@ to the simple model using here, they end up slightly warmer.
 
 You can now advance the world by a few seconds:
 
-	make_world 10 0.1 | step_world 0.1 100
+	bin/make_world 10 0.1 | bin/step_world 0.1 100
 
 You should see that some of the heat is making it's way
 around the right hand side, but it can't come through
 the insulator across the middle-left. Step forward
 by 1000 seconds:
 
-	make_world 10 0.1 | step_world 0.1 10000
+	bin/make_world 10 0.1 | bin/step_world 0.1 10000
 
 and you'll see the world has largely reached a steady-state,
 with high temperatures around the top, then slowly
@@ -230,14 +240,14 @@ is most accurate when both time and space are very
 fine. To visualise much finer-grain scenarios, it is
 convenient to view it as a bitmap:
 
-	make_world 100 0.1 | step_world 0.1 100 | render_world dump.bmp
+	bin/make_world 100 0.1 | bin/step_world 0.1 100 | bin/render_world dump.bmp
 
 If you look at `dump.bmp`, you should see insulators rendered
 in green, and the temperature shown from blue (0) to red (1). However,
 over a total time of 0.1*100=10 seconds, very little will have happened.
 To see anything happen, you'll need to up the time significantly:
 
-	make_world 100 0.1 | step_world 0.1 100000 | render_world dump.bmp
+	bin/make_world 100 0.1 | bin/step_world 0.1 100000 | bin/render_world dump.bmp
 	
 It is getting fairly slow, even at a resolution of 100x100, but in
 practise we'd like to increase resolution 10x in all three dimensions
@@ -259,8 +269,9 @@ at the end).
 We're going to convert the original C++ code to OpenCL quite
 incrementally, keeping a trail of working versions as we go.
 You should keep track of this as labels within git, so
-that you can always get back to a working version (and
-work out what you changed that broke it).
+that you can always get back to a working version, and
+work out what you changed that broke it (however, I don't
+_require_ you to do this).
 If all you have is the original sequential and the highly optimised
 parallel GPU version, then it can be very difficult to see how the
 two are actually related.
@@ -280,13 +291,13 @@ which allocates buffers and calculates constants,
 followed three nested loops. These loops
 represent the bulk of the time in the algorithm, and
 it should be clear that the execution time complexity
-is O(`n`*`w`*`h`). So broadly speaking if we double any _one_
+is O(`n` x `w` x `h`). So broadly speaking if we double any _one_
 of `n`, `w`, or `h` then the execution time will double, and
 if we double _all_ of `n`, `w`, and `h` then the execution
 time will be eight times longer.
 
-Recalling your experience with vectorisation in
-matlab, you should immediately see opportunities
+Recalling your experience with TBB, you should
+immediately see opportunities
 for parallelism here: all the iterations of the
 two inner loops are independent, and so can be
 parallelised. However, there is a loop carried
@@ -336,12 +347,12 @@ Our first step is to pull the two inner loops out into
 a lambda, starting to isolate the core loops. Pull
 the body of the inner-most loop into a seperate
 lambda called `kernel_xy`, which should take an
-x and y parameter, but capture everything else by
+`x` and `y` parameter, but capture everything else by
 reference (i.e. use the `[&]` lambda form) - this
 is an intermediate step, so we won't worry too much
 about shared dynamic state.
 
-The resulting code should look something like:
+The resulting code should look _something_ like:
 
     std::vector<float> buffer(w*h);
 	
@@ -371,7 +382,7 @@ To compile this, we need some sort of driver
 program to load the world, call our function,
 and save the world. Fortunately, we already have
 such a program in `src/step_world.cpp`. Take the
-`main` from that program and paste it in below
+`main` from that program (`src/step_world.cpp`) and paste it in below
 your existing code. Note that it should appear
 outside the namespaces, as `main` goes
 in the global namespace. Modify the call to `hpce::StepWorld`
@@ -383,20 +394,34 @@ compiled together with `src/your_login/step_world_v1_lambda.cpp`
 to produce a single executable called `step_world_v1_lambda`.
 Again, it is up to you where you choose to have it built.
 
+_If you are using the default makefile, then doing:
+
+    make bin/your_login/step_world_v1_lambda
+	
+should build it through the magic of pattern matching, then you
+can run it as:
+
+    bin/your_login/step_world_v1_lambda
+_
+
 By making sure the executables have different names
-and we can still run old versions, we retain the ability
+we can still run old versions, and we retain the ability
 to select between different implementations. Often
 students - I'm sure not you - resort to #ifdef and
 commented out code as they develop new versions of
-existing code.
+existing code. This is an alternative approach to that
+taking in CW1 and CW2: instead of having a switch that
+allows one program to have multiple implementations,
+we have multiple programs that can be switched in and
+out of a pipeline.
 
 Test your program still does the same as the
 original implementation in whatever way you
 think best. Note that you have both
 `step_world` and `step_world_v1_lambda`
 available at the same time, and that there
-are programs like `diff` (posix) and `FC` (windows)
-which will tell you if two text files are
+are programs like `diff` (posix) which will
+tell you if two text files are
 different. In bash this is particularly easy to do,
 and it can be incorporated into your makefile if you
 wish - `make test` is often a good target to have.
@@ -449,7 +474,7 @@ make it a new function called `kernel_xy`:
 
 If you try compiling this, you'll see that it doesn't
 work - you'll get undefined errors about `w`, `world`,
-and so on. This is telling you all the information
+and so on. This is telling you all the information/data/memory/structures
 which will eventually have to be manually copied to
 the GPU, and if necessary back again afterwards. When
 accelerating for real, this
@@ -494,12 +519,12 @@ the GPU, and which only need to be copied one way.
 
 When it comes to passing the cell properties, note that
 cell_flags_t was originally defined to have the underlying
-type uint32_t, so you can safely cast to a (const uint32_t *) when
+type `uint32_t`, so you can safely cast to a `(const uint32_t *)` when
 converting parameters.
 
 Keep adding parameters until you have removed all errors,
 making sure that you convert all of them to primitive
-numbers or pointers to arrays.
+types or pointers to arrays of primitive types.
 
 Test the function to make sure it still works. If so, we
 are now in a position to map it into a CPU kernel.
@@ -513,7 +538,7 @@ into a function. This function has:
 
 - An iteration identifier (`x`,`y`), which identifies where
   the computation is occuring within the overall parallel
-  iteration space. This will become our OpenCL global work id.
+  iteration space. This will become our OpenCL [global work id](https://software.intel.com/sites/landingpage/opencl/optimization-guide/Basic_Concepts.htm).
   
 - A number of scalar (non-pointer) parameters, such
   as `w`, which will be passed by value at the kernel invocation.
@@ -562,8 +587,8 @@ we even think about executing kernels, we need to:
 4. Create and build our kernels. It is common
    to load and build the GPU kernel code at run-time,
    just before the kernel is first used, though it is
-   also possible to pre-compile them, and pre-compilation is
-   required for FPGA-based OpenCL providers.
+   also possible to pre-compile them (pre-compilation is
+   required for FPGA-based OpenCL providers).
 
 These steps can often be simplified with library
 code, but here we'll rely on just the standard
@@ -630,7 +655,7 @@ but if we change an environment variable (e.g. `export HPCE_SELECT_PLATFORM=1`
 in bash), then the executable will do something different.
 While not as good as a configuration file, this makes it
 possible to select what happens _without_ recompiling. Again,
-I'm sure you don't use #ifdef and commenting to change
+I'm sure you don't use `#ifdef` and commenting to change
 functionality, but many less enlightened students do.
 
 We now have a handle to our chosen platform in `platform`. This
@@ -658,7 +683,7 @@ we can enumerate:
 Depending on your system you may now see two devices. On my
 desktop, I get:
 
-	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2015/hpce/cw/CW4
+	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2016/hpce/cw/CW3
     $ bin/make_world.exe 64 | bin/step_world_v3_opencl > /dev/null
     Loaded world with w=64, h=64
     Stepping by dt=0.1 for n=1
@@ -696,7 +721,7 @@ option of changing that via an environment variable:
 So for example I can switch between device 0 and 1 without
 re-compiling:
 
-	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2015/hpce/cw/CW4
+	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2016/hpce/cw/CW3
 	$ bin/make_world.exe 64 | bin/step_world_v3_opencl > /dev/null
 	Loaded world with w=64, h=64
 	Stepping by dt=0.1 for n=1
@@ -708,10 +733,10 @@ re-compiling:
 	  Device 1 :         Intel(R) Core(TM) i7-2600 CPU @ 3.40GHz
 	Choosing device 0
 
-	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2015/hpce/cw/CW4
+	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2016/hpce/cw/CW3
 	$ export HPCE_SELECT_DEVICE=1
 
-	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2014/hpce/cw/CW4
+	dt10@TOTO /cygdrive/e/_dt10_/documents/teaching/2016/hpce/cw/CW3
 	$ bin/make_world.exe 64 | bin/step_world_v3_opencl > /dev/null
 	Loaded world with w=64, h=64
 	Stepping by dt=0.1 for n=1
@@ -1479,7 +1504,8 @@ as it is easy to think this is working for n=1 when it fails
 for larger numbers.
 
 Depending on your platform, you may now start to see a reasonable
-speed-up over software (though probably still not over TBB).
+speed-up over software (though maybe still not over TBB - depends
+a lot on the hardware).
 
 
 Optimising global to GPU memory accesses (v5)
@@ -1638,8 +1664,14 @@ this effect on such platforms.
 Deliverables
 ============
 
+At this point I'm going to stop requiring you to create
+graphs, and trust you to use the techniques you have
+to understand the various scaling properties. Another
+thing I highly reccommend doing is to actually create
+a `tbb::parallel_for` version and compare against that.
+
 Make sure all your source files are checked into your
-local git repository:
+git repository:
 
 - `src/your_login/step_world_v1_lambda.cpp`
 
@@ -1672,7 +1704,8 @@ files, or other large binary objects.
 
 Push the results up to your private github repository,
 then submit a zipped copy (together with .git) to
-blackboard.
+blackboard as a safety measure (the primary submission
+is the git one).
 
 Compatibility patches
 =====================
