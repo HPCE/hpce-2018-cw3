@@ -1713,7 +1713,8 @@ Compatibility patches
 ### Missing alloca.h
 
 Windows doesn't have a version of <alloca.h>, so if necessary
-just comment it out.
+just comment it out. See [this issue](https://github.com/HPCE/hpce-2015-cw4/issues/6).
+
 
 Debugging tips
 ==============
