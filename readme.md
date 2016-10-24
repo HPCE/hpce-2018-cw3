@@ -1688,7 +1688,7 @@ git repository:
 
 - `src/your_login/step_world_v5_packed_properties.cpp`
 
-- `src/your_login/step_world_v5_kernel.cl`
+- `src/your_login/step_world_v5_packed_properties.cl`
 
 Each implementation should perform the same step as
 the original step_world. While there may be minor
