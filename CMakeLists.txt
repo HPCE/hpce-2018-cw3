@@ -93,8 +93,12 @@ endforeach(SRC_FILE ${USR_SRC})
 ##
 ## ==============================================================================
 
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -std=c++11 -o2")
-
+# As suggested by @hamish-milne
+#set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -std=c++11 -o2")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "-Wall -std=gnu++11 -o2")
+## Get rid of DLL errors
+set(BUILD_SHARED_LIBS OFF)
+set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} "-static")
 
 ## ==============================================================================
 ##
