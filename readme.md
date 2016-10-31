@@ -1,6 +1,10 @@
 Overal Goals
 ============
 
+The deadline for this coursework is:
+
+    2016/11/07 22:00
+
 The overall goals of this coursework are to:
 
 - Develop familiarity with building OpenCL programs
