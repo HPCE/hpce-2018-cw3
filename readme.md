@@ -86,6 +86,9 @@ useful, though it is on the slippery slope towards
 [docker](https://www.docker.com/what-docker). If you just want to make programs faster you
 can ignore all this._
 
+If you want to run Ubuntu under VMWare (rather than Debian), then
+@spr13 has some suggestions on getting the [AMD software OpenCL
+provider installed](https://github.com/HPCE/hpce-2016-cw3/issues/13).
 
 ### Mac users
 
