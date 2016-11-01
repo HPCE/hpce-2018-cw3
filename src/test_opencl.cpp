@@ -5,13 +5,14 @@
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
+#include <map>
 
 #include <fstream>
 #include <streambuf>
 
 // Update: this doesn't work in windows - if necessary take it out. It is in
 // here because some unix platforms complained if it wasn't heere.
-#ifndef WIN32
+#if !defined(WIN32) && !defined(_WIN32)
 #include <alloca.h>
 #endif
 
@@ -22,6 +23,23 @@
 
 int main(int argc, char *argv[])
 {
+	std::map<cl_int, std::string> errmap;
+
+#define ERRMAP(e)	errmap[e] = # e
+	ERRMAP(CL_SUCCESS);
+	ERRMAP(CL_INVALID_PROPERTY);
+	ERRMAP(CL_INVALID_VALUE);
+	ERRMAP(CL_INVALID_DEVICE);
+	ERRMAP(CL_DEVICE_NOT_AVAILABLE);
+	ERRMAP(CL_OUT_OF_HOST_MEMORY);
+	ERRMAP(CL_INVALID_BINARY);
+	ERRMAP(CL_INVALID_BUILD_OPTIONS);
+	ERRMAP(CL_INVALID_OPERATION);
+	ERRMAP(CL_COMPILER_NOT_AVAILABLE);
+	ERRMAP(CL_BUILD_PROGRAM_FAILURE);
+	ERRMAP(CL_OUT_OF_RESOURCES);
+	ERRMAP(CL_OUT_OF_HOST_MEMORY);
+
 	try{
 	
 		std::vector<cl::Platform> platforms;
@@ -32,7 +50,7 @@ int main(int argc, char *argv[])
 		
 		std::cerr<<"Found "<<platforms.size()<<" platforms\n";
 		for(unsigned i=0;i<platforms.size();i++){
-			std::string vendor=platforms[i].getInfo<CL_PLATFORM_VENDOR>();
+			std::string vendor=platforms[i].getInfo<CL_PLATFORM_NAME>();
 			std::cerr<<"  Platform "<<i<<" : "<<vendor<<"\n";
 		}
 		
@@ -52,7 +70,8 @@ int main(int argc, char *argv[])
 		std::cerr<<"Found "<<devices.size()<<" devices\n";
 		for(unsigned i=0;i<devices.size();i++){
 			std::string name=devices[i].getInfo<CL_DEVICE_NAME>();
-			std::cerr<<"  Device "<<i<<" : "<<name<<"\n";
+			std::string ver=devices[i].getInfo<CL_DEVICE_OPENCL_C_VERSION>();
+			std::cerr<<"  Device "<<i<<" : "<<name<<", version: "<<ver<<"\n";
 		}
 		
 		int selectedDevice=0;
@@ -62,12 +81,14 @@ int main(int argc, char *argv[])
 		std::cerr<<"Choosing device "<<selectedDevice<<"\n";
 		cl::Device device=devices.at(selectedDevice);
 		
-		cl::Context context(devices);
-		
+		cl::Context context(device);
+
 		std::string kernelSource="__kernel void Add(__global float *x){ x[get_global_id(0)] += 0.125f; }\n";
 		
 		cl::Program::Sources sources(1, std::make_pair(kernelSource.c_str(), kernelSource.size()+1));
-		
+
+		devices.clear();
+		devices.push_back(device);
 		cl::Program program(context, sources);
 		program.build(devices);
 		
@@ -98,8 +119,15 @@ int main(int argc, char *argv[])
 		}else{
 			std::cerr<<"Success, program executed kernel successfully.\n";
 		}
-	}catch(const std::exception &e){
-		std::cerr<<"Exception : "<<e.what()<<std::endl;
+	}catch(cl::Error &e){
+		std::cerr<<"Exception from "<<e.what()<<" : ";
+
+		std::map<cl_int, std::string>::iterator it;
+		if ((it = errmap.find(e.err())) != errmap.end())
+			std::cerr << it->second << std::endl;
+		else
+			std::cerr << "Unknown " << e.err() << std::endl;
+
 		return 1;
 	}
 		
