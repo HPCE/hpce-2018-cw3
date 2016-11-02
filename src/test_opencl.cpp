@@ -70,8 +70,7 @@ int main(int argc, char *argv[])
 		std::cerr<<"Found "<<devices.size()<<" devices\n";
 		for(unsigned i=0;i<devices.size();i++){
 			std::string name=devices[i].getInfo<CL_DEVICE_NAME>();
-			std::string ver=devices[i].getInfo<CL_DEVICE_OPENCL_C_VERSION>();
-			std::cerr<<"  Device "<<i<<" : "<<name<<", version: "<<ver<<"\n";
+			std::cerr<<"  Device "<<i<<" : "<<name<<"\n";
 		}
 		
 		int selectedDevice=0;
