@@ -80,14 +80,14 @@ int main(int argc, char *argv[])
 		std::cerr<<"Choosing device "<<selectedDevice<<"\n";
 		cl::Device device=devices.at(selectedDevice);
 		
-		cl::Context context(device);
+		devices.clear();
+		devices.push_back(device);
+		cl::Context context(devices);
 
 		std::string kernelSource="__kernel void Add(__global float *x){ x[get_global_id(0)] += 0.125f; }\n";
 		
 		cl::Program::Sources sources(1, std::make_pair(kernelSource.c_str(), kernelSource.size()+1));
 
-		devices.clear();
-		devices.push_back(device);
 		cl::Program program(context, sources);
 		program.build(devices);
 		
