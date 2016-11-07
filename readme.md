@@ -1449,8 +1449,8 @@ There is a lot going on here, so to summarise what the program should
 now look like, it should be something like:
 
 ``` text
-Create buffState : read only
-Create buffProperties, buffBuffer : read/write
+Create buffProperties : read only
+Create buffState, buffBuffer : read/write
 
 Create kernel
 Set inner, outer, and properties arguments
