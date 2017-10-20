@@ -1,5 +1,6 @@
 CPPFLAGS += -I include
 CPPFLAGS += -W -Wall
+CPPFLAGS += -std=c++11
 CPPFLAGS += -O3
 
 # LDLIBS += -lOpenCL
