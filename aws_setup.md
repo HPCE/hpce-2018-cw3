@@ -9,14 +9,12 @@ sudo sed -i -e "s/main$/main contrib non-free/g" /etc/apt/sources.list
 
 sudo apt-get -y update
 
-sudo apt-get -y install nvidia-libopencl1
+sudo apt-get -y install g++ gdb make git emacs perl libtbb-dev libtbb2
 
-sudo apt-get -y install nvidia-opencl-icd
+sudo apt-get -y install amd-opencl-icd amd-libopencl1 amd-opencl-dev nvidia-opencl-icd
 
-sudo apt-get -y install nvidia-opencl-dev
+# Needed for HL headers
+sudo apt-get -y install freeglut3-dev
 
-sudo apt-get -y install nvidia-driver
-
-sudo reboot
+sudo apt-get -y upgrade
 ```
-@schmethan suggests also installing `eog` and `libcanberra-gtk3-module` for viewing images.

@@ -3,7 +3,7 @@ Overal Goals
 
 The deadline for this coursework is:
 
-    2016/11/07 22:00
+    2017/12/03 22:00
 
 The overall goals of this coursework are to:
 
@@ -109,7 +109,7 @@ and linker directories.
 
 I've created an image for AWS which has OpenCL set up,
 both for software and the GPU. The title of the image
-is `HPCE-2015-GPU-Image`, which can be selected when
+is `HPCE-2017-GPU-Image`, which can be selected when
 you launch an AWS instance. The steps for reproducing
 are [available](aws_setup.md), but it isn't much fun
 recreating it.
@@ -144,7 +144,7 @@ To make this somewhat realistic, you are working with an
 existing proprietary application. This is a very simplified
 version of a research problem I once personally had to work
 with, where I was given a big lump of code and asked to
-make it go faster. And amusingly now (2016) I am actively
+make it go faster. And amusingly now (2017) I am actively
 working on heat equations again for large-scale asynchronous systems.
 "plus ca change", _und so weiter_.
 
@@ -1709,10 +1709,66 @@ clean. However, your repository should not contain
 compiled artefacts such as executables and object
 files, or other large binary objects.
 
-Push the results up to your private github repository,
-then submit a zipped copy (together with .git) to
-blackboard as a safety measure (the primary submission
-is the git one).
+Submission
+==========
+
+Submission of code is via your git repository. Make sure
+you have committed and pushed to github - you are _strongly_
+encouraged to clone it into a different directory and then
+test it, just in case you are relying on something that
+wasn't commited.
+
+Once your code is committed, note the [commit hash](https://blog.thoughtram.io/git/2014/11/18/the-anatomy-of-a-git-commit.html)
+of your current revision:
+
+````
+git log -1
+````
+This will produce something like:
+````
+ubuntu@ubuntu-xenial:/vagrant$ git log -1
+commit 94d8419b20c78da86415bea7236d3719915977a3
+Author: David Thomas <m8pple@github.com>
+Date:   Fri Jan 02 14:26:40 2017 +0000
+
+    All tests passing.
+````
+
+You can also see the commit hash in the github web-site,
+and it is a good way of checking you have actually commited.
+
+The commit hash of this revision is `94d8419b20c78da86415bea7236d3719915977a3`
+which is a cryptographic hash over all the files in your
+repository, including the history of all the files. Because
+the hash is cryptographically secure, it is impossible to
+take one commit hash, then come up with a different
+set of files which produces the same hash. The hash produced
+on your local machine will also match the hash calculated
+by github.
+
+So take your hash (and just the hash), and submit it via blackboard.
+This is proof of existence - even if github goes down, you
+can later on prove that the existence of your hash in blackboard
+means you must have done the work associated with the hash.
+The hash in blackboard will also be the exact revision of your
+repository that will get checked out of github and tested. So you
+can carry on editing and modifying the repository, but only
+the commit with the hash submitted to blackboard is the one tested.
+
+To summarise:
+
+1 - Test your code.
+
+2 - Commit your code to your local repo.
+
+3 - Note the commit hash (`git log -1`).
+
+4 - Submit the hash via blackboard.
+
+5 - Push the code to your github repo.
+
+You can repeat this process as many times as you want,
+up until the deadline.
 
 Compatibility patches
 =====================
