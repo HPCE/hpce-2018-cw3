@@ -90,6 +90,9 @@ If you want to run Ubuntu under VMWare (rather than Debian), then
 @spr13 has some suggestions on getting the [AMD software OpenCL
 provider installed](https://github.com/HPCE/hpce-2016-cw3/issues/13).
 
+If you want to use the Intel OpenCL provided under Ubuntu, then @TheoFranquet
+has some [suggestions on how to get it setup](https://github.com/HPCE/hpce-2017-cw3/issues/45).
+
 ### Mac users
 
 As far as I know all Macs come with OpenCL installed these
