@@ -3,7 +3,7 @@ Overal Goals
 
 The deadline for this coursework is:
 
-    2017/12/03 22:00
+    2017/11/03 22:00
 
 The overall goals of this coursework are to:
 
