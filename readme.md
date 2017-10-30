@@ -113,9 +113,20 @@ and linker directories.
 I've created an image for AWS which has OpenCL set up,
 both for software and the GPU. The title of the image
 is `HPCE-2017-GPU-Image`, which can be selected when
-you launch an AWS instance. The steps for reproducing
-are [available](aws_setup.md), but it isn't much fun
-recreating it.
+you launch an AWS instance. The instance is located
+in the "N. Virginia" region - if you can't find it, check
+whether AWS has defaulted you into a different region.
+
+This is a debian image, so the default login is `admin` 
+rather than `ubuntu`. So you would login with ssh as:
+```
+ssh -A -i [your-key] admin@[server-ip-address]
+```
+_Thanks to @BaronKhan for [pointing out some missing info](https://github.com/HPCE/hpce-2017-cw3/issues/19)._
+
+The steps for reproducing the AMI are [available](aws_setup.md),
+but it isn't much fun recreating it.
+
 
 ### Debugging
 
