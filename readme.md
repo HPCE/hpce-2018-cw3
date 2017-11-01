@@ -1559,7 +1559,7 @@ bits.
 
 ### Kernel code
 
-Create a new kernel called `src/src/your_login/step_world_v5_packed_properties.cl`
+Create a new kernel called `src/your_login/step_world_v5_packed_properties.cl`
 based on the v4 kernel.
 
 At the top of the code, read the properties for the current cell into
@@ -1580,7 +1580,7 @@ The other neighbours will need to depend on different bits in the properties.
 
 ### Host code
 
-Create a new implementation called `src/src/your_login/step_world_v5_packed_properties.cpp`
+Create a new implementation called `src/your_login/step_world_v5_packed_properties.cpp`
 based on the v4 host code.
 
 In the host code, you need to make sure the the correct flags have
