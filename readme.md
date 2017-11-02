@@ -1594,10 +1594,10 @@ and fill it with the appropriate bits. This will involve looping over all
 the co-ordinates, using the following process at each (x,y) co-ordinate:
 
     packed(x,y) = world.properties(x,y)
-    if cell(x,y) is normal:
-        if packed(x,y-1):
+    if world.properties(x,y) is normal:
+        if world.properties(x,y-1) is insulator:
             packed(x,y) = packed(x,y) + 4
-        if packed(x,y+1):
+        if world.properties(x,y+1) is insulator:
             packed(x,y) = packed(x,y) + 8
         # Handle left and right cases
 
