@@ -859,7 +859,7 @@ copy the entire `kernel_xy` function into it. You can
 leave the original `kernel_xy` function where it is, so
 that the software path still works.
 
-Your file `src_cl/your_login/step_world_v3_kernel.cl` should
+Your file `src/your_login/step_world_v3_kernel.cl` should
 now look something like (your parameters may be in a different
 order):
 
