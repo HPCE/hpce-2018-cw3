@@ -17,8 +17,8 @@
 #endif
 
 // Update: Work around deprecation warnings
-#define CL_USE_DEPRECATED_OPENCL_1_1_APIS 
-#define __CL_ENABLE_EXCEPTIONS 
+#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#define __CL_ENABLE_EXCEPTIONS
 #include "CL/cl.hpp"
 
 int main(int argc, char *argv[])
@@ -104,10 +104,10 @@ int main(int argc, char *argv[])
 		
 		float input=0.5;
 		queue.enqueueWriteBuffer(buffer, CL_TRUE, 0, cbBuffer, &input);
-		queue.enqueueBarrier();
+		queue.enqueueBarrierWithWaitList();
 			
 		queue.enqueueNDRangeKernel(kernel, cl::NDRange(0), cl::NDRange(nThreads), cl::NullRange);
-		queue.enqueueBarrier();
+		queue.enqueueBarrierWithWaitList();
 		
 		float output;
 		queue.enqueueReadBuffer(buffer, CL_TRUE, 0, cbBuffer, &output);

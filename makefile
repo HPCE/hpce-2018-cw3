@@ -11,3 +11,6 @@ bin/% : src/%.cpp src/heat.cpp
 	mkdir -p $(dir $@)
 	$(CXX) $(CPPFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS)
 
+bin/test_opencl : src/test_opencl.cpp
+	mkdir -p $(dir $@)
+	$(CXX) $(CPPFLAGS) -o $@ $^ $(LDFLAGS) -lOpenCL

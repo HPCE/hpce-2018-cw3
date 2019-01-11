@@ -3,7 +3,10 @@ Overal Goals
 
 The deadline for this coursework is:
 
-    2017/11/03 22:00
+    Mon Feb 11th at 22:00
+
+Submission of deliverables is via github only, with only
+a hash going into blackboard to prove when you submitted.
 
 The overall goals of this coursework are to:
 
@@ -42,9 +45,12 @@ a simple, but complete, OpenCL program. It doesn't do a lot, but
 it does allocate GPU buffers and try to execute a kernel, which
 is enough to tell whether things are up and running.
 
-Compile the program, and make sure you can both build
-and execute it. You may need to fiddle with your
-environment to make it build, and find/download an SDK.
+Compile the program:
+```
+make bin/test_opencl
+```
+and make sure you can both build and execute it. You may need to
+fiddle with your environment to make it build, and find/download an SDK.
 While an OpenCL run-time is installed in most systems,
 there is often no SDK installed.
 
@@ -61,7 +67,7 @@ underlying compute resource and does all the scheduling.
 In 2014 @farrell236 was nice enough to contribute the [CMakeLists.txt](CMakeLists.txt),
 which is a way of getting cross-platform builds with CMake. I've
 kept it here, as exposure to CMake is a good thing (I've seen
-quite a few students (EIE2 2016) using [CLion](https://www.jetbrains.com/clion/),
+quite a few students (EIE2 2016 onwards) using [CLion](https://www.jetbrains.com/clion/),
 which is based on CMake).
 
 ### Linux
@@ -77,21 +83,8 @@ install it.
 Many DoC machines have NVidia cards, with the OpenCL
 drivers installed.
 
-I've included the [provisioning script](provision.sh) which I
-use for getting a basic [Debian Jessie](https://www.debian.org/releases/jessie/) install up and running
-with a software OpenCL provider. _I've also included a [vagrant](https://en.wikipedia.org/wiki/Vagrant_(software))
-script that will use the provision script - if you are
-feeling adventurous, then vagrant can become very
-useful, though it is on the slippery slope towards
-[docker](https://www.docker.com/what-docker). If you just want to make programs faster you
-can ignore all this._
-
-If you want to run Ubuntu under VMWare (rather than Debian), then
-@spr13 has some suggestions on getting the [AMD software OpenCL
-provider installed](https://github.com/HPCE/hpce-2016-cw3/issues/13).
-
 If you want to use the Intel OpenCL provided under Ubuntu, then @TheoFranquet
-has some [suggestions on how to get it setup](https://github.com/HPCE/hpce-2017-cw3/issues/45).
+had some [suggestions on how to get it setup](https://github.com/HPCE/hpce-2018-cw3/issues/45).
 
 ### Mac users
 
@@ -112,21 +105,16 @@ and linker directories.
 
 I've created an image for AWS which has OpenCL set up,
 both for software and the GPU. The title of the image
-is `HPCE-2017-GPU-Image`, which can be selected when
+is `HPCE-2018`, which can be selected when
 you launch an AWS instance. The instance is located
 in the "N. Virginia" region - if you can't find it, check
 whether AWS has defaulted you into a different region.
 
-This is a debian image, so the default login is `admin` 
-rather than `ubuntu`. So you would login with ssh as:
+This is an ubuntu image, so the default login is `ubuntu` 
+So you would login with ssh as:
 ```
 ssh -A -i [your-key] admin@[server-ip-address]
 ```
-_Thanks to @BaronKhan for [pointing out some missing info](https://github.com/HPCE/hpce-2017-cw3/issues/19)._
-
-The steps for reproducing the AMI are [available](aws_setup.md),
-but it isn't much fun recreating it.
-
 
 ### Debugging
 
@@ -155,14 +143,7 @@ The Heat World code
 ===================
 
 To make this somewhat realistic, you are working with an
-existing proprietary application. This is a very simplified
-version of a research problem I once personally had to work
-with, where I was given a big lump of code and asked to
-make it go faster. And amusingly now (2017) I am actively
-working on heat equations again for large-scale asynchronous systems.
-"plus ca change", _und so weiter_.
-
-The overall structure is a classic
+existing proprietary application. The overall structure is a classic
 example of a [finite-difference](https://en.wikipedia.org/wiki/Finite_difference_method)
 or stencil operation, where
 you are applying some sort of local smoothing operation
@@ -558,9 +539,10 @@ separated the computationally intensive part out
 into a function. This function has:
 
 - An iteration identifier (`x`,`y`), which identifies where
-  the computation is occuring within the overall parallel
-  iteration space. This will become our OpenCL [global work id](https://software.intel.com/sites/landingpage/opencl/optimization-guide/Basic_Concepts.htm).
-  
+  the computation is occurring within the overall parallel
+  iteration space. This will become our OpenCL global work id,
+  which is unique for all work-items in the kernel.
+
 - A number of scalar (non-pointer) parameters, such
   as `w`, which will be passed by value at the kernel invocation.
   
@@ -621,6 +603,7 @@ by this header are all documented at the [Khronos site](http://www.khronos.org/r
 
 Add the include at the top of `src/your_login/step_world_v3_opencl.cpp`:
 
+    #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 	#define __CL_ENABLE_EXCEPTIONS 
 	#include "CL/cl.hpp"
 
@@ -628,7 +611,9 @@ The `__CL_ENABLE_EXCEPTIONS` definition tells the C++
 wrapper that it should throw exceptions when things
 go wrong, rather than just returning an error code.
 This makes it much harder to accidentally ignore steps
-which went wrong. 
+which went wrong. The deprecation macro is because NVidia
+still does not seem to officially support OpenCL 2.0, so we are
+working with 1.2 as a lowest common denominator.
 
 At this point you may hit an error about `CL/opencl.h` not
 being found. Make sure that OpenCL is available, and that
@@ -725,7 +710,7 @@ not as fast or powerful, but it can still be programmed
 in the same way. However, on a multi-core machine the
 CPU OpenCL device may in fact be very powerful, with the
 ability to exploit wide SIMD instructions. Do not
-under-estimate the power of a [c4.8xlarge](http://aws.amazon.com/ec2/instance-types/)
+under-estimate the power of a [c4.9xlarge](http://aws.amazon.com/ec2/instance-types/)
 running all 36 cores over vectorisable code, as it can
 often beat a GPU.
 
@@ -1271,7 +1256,7 @@ may not be that impresssed:
     time (bin/make_world | bin/step_world 0.1 1 > /dev/null)
 	time (bin/make_world | bin/$USER/step_world_v3_opencl 0.1 1 > /dev/null)
 	
-You will probably find that the opencl version is slower, probably
+You _may_ find that the opencl version is slower, possibly
 by a large amount. This can be attributed to the balance between
 two factors:
 
@@ -1309,7 +1294,7 @@ then binary:
 	
 Depending on your platform, you'll see between one and
 two orders of magnitude in difference between the two. I
-would reccommend using the binary format when not
+would recommend using the binary format when not
 debugging, as otherwise your improvements in speed will
 be swamped by conversions.
 
@@ -1418,11 +1403,11 @@ in order to make sure the output buffer is completely written
 before the next kernel call uses it as an input buffer.
 
 There are multiple solutions to this, but the easiest is to add a call to
-`enqueueBarrier` just after the kernel is enqueue'd:
+`enqueueBarrierWithWaitList` just after the kernel is enqueue'd:
 
 	queue.enqueueNDRangeKernel(kernel, offset, globalSize, localSize);
 		
-	queue.enqueueBarrier();	// <- new barrier here
+	queue.enqueueBarrierWithWaitList();	// <- new barrier here
 	
 	std::swap(buffState, buffBuffer);
 
@@ -1442,7 +1427,7 @@ So the inner loop should now look something like:
 	kernel.setArg(4, buffBuffer);
 	queue.enqueueNDRangeKernel(kernel, offset, globalSize, localSize);
 		
-	queue.enqueueBarrier();
+	queue.enqueueBarrierWithWaitList();
 	
 	std::swap(buffState, buffBuffer);
 
@@ -1499,6 +1484,8 @@ for n=2 is:
 	
 	memcpy(originalState , buffState, ...);
 	
+	///////////////////////////////////////////////////
+
 	// loop iteration t=0
 	// buffState==0x4000, buffBuffer==0x8000
 	
@@ -1507,6 +1494,8 @@ for n=2 is:
 	
 	swap(buffState, buffBuffer); // swaps the values of the pointers
 	
+    //////////////////////////////////////////////////
+
 	// loop iteration t=1
 	// buffState==0x8000, buffBuffer==0x4000
 	
@@ -1514,13 +1503,15 @@ for n=2 is:
 	kernel(..., input = buffState (0x8000), output = buffBuffer (0x4000))
 	
 	swap(buffState, buffBuffer);
+
+	//////////////////////////////////////////////////
 	
 	// After loop
 	// buffState==0x4000, buffBuffer==0x8000
 	
 	memcpy(buffState, outputState, ...);
 	
-I highly reccommend you try this with n=1, n=2, and n=3,
+I highly recommend you try this with n=1, n=2, and n=3,
 as it is easy to think this is working for n=1 when it fails
 for larger numbers.
 
@@ -1607,7 +1598,7 @@ Once the array is prepared, it can be transferred to the
 GPU instead of the properties array.
 
 This got my laptop up to about 2.5x speedup, so faster than the two
-cores in my device can go. On an AWS GPU instance I looked at a 5000x5000
+cores in my device can go. On an AWS g2 GPU instance I looked at a 5000x5000
 grid, stepped over 1000 time steps, which is more at the resolution
 we typically use:
 
@@ -1627,10 +1618,9 @@ packing    |           6.5 |          25.3   |                  1.4
 	
 
 I strongly encourage you to also try the software OpenCL provider.
-The AWS GPU instance has both a GPU and software provider installed
-(though irritatingly they both just show up as "NVIDIA Corporation"),
+The AWS GPU instance has both a GPU and software provider installed,
 and you can use `HPCE_SELECT_PLATFORM` to choose which one you
-want. The GPU instance only has 8 cores, and the code is not
+want. The GPU instance only has 16 cores, and the code is not
 optimised for CPU-based OpenCL providers, but it should still be
 less than half the time of the original software.
 
@@ -1658,8 +1648,10 @@ co-ordinate this, and a hierarchical approach could be used:
 
 - Registers: each thread manages a cluster of pixels (e.g. 16),
   held locally in registers.
-- Shared: after each time-step each thread exhanges its
+
+- Shared: after each time-step each thread exchanges its
   halo of 16 pixels with its neighbours via shared memory.
+
 - Global: after each time-step a sub-set of threads exchange
   a coarser halo via global memory. Assume each thread manages
   16 pixels, and each workgroup has 256 threads, there would
@@ -1742,8 +1734,8 @@ This will produce something like:
 ````
 ubuntu@ubuntu-xenial:/vagrant$ git log -1
 commit 94d8419b20c78da86415bea7236d3719915977a3
-Author: David Thomas <m8pple@github.com>
-Date:   Fri Jan 02 14:26:40 2017 +0000
+Author: James Davis <m8pple@github.com>
+Date:   Fri Jan 02 14:26:40 2018 +0000
 
     All tests passing.
 ````
@@ -1761,8 +1753,8 @@ on your local machine will also match the hash calculated
 by github.
 
 So take your hash (and just the hash), and submit it via blackboard.
-This is proof of existence - even if github goes down, you
-can later on prove that the existence of your hash in blackboard
+This is proof of existence - even if github goes down (and it does),
+you can later on prove that the existence of your hash in blackboard
 means you must have done the work associated with the hash.
 The hash in blackboard will also be the exact revision of your
 repository that will get checked out of github and tested. So you
@@ -1801,15 +1793,9 @@ Debugging tips
 In this particular exercise, you shouldn't encounter
 too many problems, but one useful feature of modern
 GPUs is that they allow debugging output, even from
-within kernels running in the GPU. In OpenCL 1.2 the
-printf support is enabled by default, but for other
-platforms you may need to use a #pragma to enable
-it. For example, in AMD platforms you can add the
-following to your kernel code:
-
-    #pragma OPENCL EXTENSION cl_amd_printf : enable
-
-and after that it is possible to use printf. Note
+within kernels running in the GPU. In OpenCL 1.2
+printf support is enabled by default, so you can use
+it from within kernels. Note
 that the printf output from different GPU threads
 may become interleaved - they are executing truly
 in parallel, after all.
