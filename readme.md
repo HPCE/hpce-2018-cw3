@@ -3,7 +3,7 @@ Overal Goals
 
 The deadline for this coursework is:
 
-    Mon Feb 11th at 22:00
+    22:00 Mon 11 Feb
 
 Submission of deliverables is via github only, with only
 a hash going into blackboard to prove when you submitted.
