@@ -116,6 +116,10 @@ So you would login with ssh as:
 ssh -A -i [your-key] admin@[server-ip-address]
 ```
 
+I will be using a `g3.4xlarge` instance for assessment. It's
+probably a good idea for you to test your work on one of these
+prior to submission.
+
 ### Debugging
 
 Because the program you're writing works as part of a pipeline,
