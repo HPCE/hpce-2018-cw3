@@ -1,0 +1,3 @@
+[submodule "opencl_sdk/include"]
+	path = opencl_sdk/include
+	url = https://github.com/KhronosGroup/OpenCL-Headers
