@@ -714,7 +714,7 @@ not as fast or powerful, but it can still be programmed
 in the same way. However, on a multi-core machine the
 CPU OpenCL device may in fact be very powerful, with the
 ability to exploit wide SIMD instructions. Do not
-under-estimate the power of a [c4.9xlarge](http://aws.amazon.com/ec2/instance-types/)
+under-estimate the power of a [c5.9xlarge](http://aws.amazon.com/ec2/instance-types/)
 running all 36 cores over vectorisable code, as it can
 often beat a GPU.
 
