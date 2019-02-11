@@ -1721,9 +1721,13 @@ time.
 
 Also include any useful documents or supporting
 material, your repository does not have to be
-clean. However, your repository should not contain
+clean. However, note that:
+- your repository should not contain
 compiled artefacts such as executables and object
-files, or other large binary objects.
+files, or other large binary objects
+- I will be running my own makefile scripts on your code,
+so anything outside of the files mentioned above might not get
+compiled by my test scripts.
 
 Submission
 ==========
