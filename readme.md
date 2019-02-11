@@ -571,6 +571,12 @@ something equivalent to:
 
 as for a while we'll just look at stderr.
 
+Note that you'll have to uncomment
+
+	# LDLIBS += -lOpenCL
+	
+in the makefile to enable linking against the OpenCL libraries.
+
 ### Opening the context, compiling kernels
 
 Because OpenCL supports many devices, there are
